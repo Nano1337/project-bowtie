@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Phase = "idle" | "listening" | "processing" | "speaking" | "error";
-type HistoryStatus = "processing" | "ready" | "error";
+type HistoryStatus = "processing" | "ready" | "error" | "canceled";
 type HistoryEntry = {
   id: string;
   createdAt: string;
@@ -42,6 +42,9 @@ export default function Home() {
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
   const inputMimeRef = useRef<string>("");
   const historyRef = useRef<HistoryEntry[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
+  const activeEntryIdRef = useRef<string | null>(null);
+  const playbackRef = useRef<HTMLAudioElement | null>(null);
   const playbackOptions = [0.75, 0.9, 1.0, 1.1, 1.25] as const;
 
   const convertToWav = async (blob: Blob) => {
@@ -156,6 +159,11 @@ export default function Home() {
       if (recorderRef.current?.state !== "inactive") {
         recorderRef.current?.stop();
       }
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+      playbackRef.current?.pause();
+      playbackRef.current = null;
       streamRef.current?.getTracks().forEach((track) => track.stop());
       historyRef.current.forEach(revokeEntry);
     };
@@ -250,13 +258,16 @@ export default function Home() {
     if (recorderRef.current?.state === "recording") {
       log("Manual stop requested.");
       recorderRef.current.stop();
+      setPhase("processing");
     }
-    setPhase("processing");
   };
 
   const requestDubbing = async (audioBlob: Blob, entryId: string) => {
     setPhase("processing");
     try {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      activeEntryIdRef.current = entryId;
       log("Uploading audio for dubbing.", {
         size: audioBlob.size,
         type: audioBlob.type,
@@ -270,6 +281,7 @@ export default function Home() {
       const response = await fetch("/api/dub", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
 
       if (response.status === 202) {
@@ -282,7 +294,7 @@ export default function Home() {
         if (!dubbingId) {
           throw new Error(payload?.error || "Dubbing failed.");
         }
-        await pollDubbingStatus(dubbingId, entryId);
+        await pollDubbingStatus(dubbingId, entryId, controller.signal);
         return;
       }
 
@@ -310,15 +322,26 @@ export default function Home() {
       updateHistoryEntry(entryId, { outputUrl: audioUrl, status: "ready" });
 
       const audio = new Audio(audioUrl);
+      playbackRef.current = audio;
       setPhase("speaking");
       audio.playbackRate = playbackRate;
       log("Playing dubbed audio.");
       audio.play();
       audio.onended = () => {
         setPhase("idle");
+        playbackRef.current = null;
         log("Playback finished.");
       };
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        updateHistoryEntry(entryId, {
+          status: "canceled",
+          errorMessage: "Canceled.",
+        });
+        setPhase("idle");
+        setErrorMessage(null);
+        return;
+      }
       console.error(error);
       updateHistoryEntry(entryId, {
         status: "error",
@@ -331,14 +354,23 @@ export default function Home() {
     }
   };
 
-  const pollDubbingStatus = async (dubbingId: string, entryId: string) => {
+  const pollDubbingStatus = async (
+    dubbingId: string,
+    entryId: string,
+    signal?: AbortSignal
+  ) => {
     const maxAttempts = 20;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      if (signal?.aborted) {
+        throw new DOMException("Aborted", "AbortError");
+      }
       log("Polling dubbing status.", { attempt: attempt + 1, dubbingId });
       const response = await fetch(
         `/api/dub/status?dubbing_id=${encodeURIComponent(
           dubbingId
         )}&target_lang=${encodeURIComponent(targetLang)}`
+        ,
+        { signal }
       );
 
       if (response.status === 202) {
@@ -375,12 +407,14 @@ export default function Home() {
       updateHistoryEntry(entryId, { outputUrl: audioUrl, status: "ready" });
 
       const audio = new Audio(audioUrl);
+      playbackRef.current = audio;
       setPhase("speaking");
       audio.playbackRate = playbackRate;
       log("Playing dubbed audio from status poll.");
       audio.play();
       audio.onended = () => {
         setPhase("idle");
+        playbackRef.current = null;
         log("Playback finished.");
       };
       return;
@@ -392,6 +426,7 @@ export default function Home() {
   const playUrl = async (url?: string) => {
     if (!url) return;
     const audio = new Audio(url);
+    playbackRef.current = audio;
     audio.playbackRate = playbackRate;
     try {
       await audio.play();
@@ -415,6 +450,24 @@ export default function Home() {
     }
     if (phase === "listening") {
       stopRecording();
+      return;
+    }
+    if (phase === "processing") {
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
+      }
+      if (activeEntryIdRef.current) {
+        updateHistoryEntry(activeEntryIdRef.current, {
+          status: "canceled",
+          errorMessage: "Canceled.",
+        });
+        activeEntryIdRef.current = null;
+      }
+      playbackRef.current?.pause();
+      playbackRef.current = null;
+      setErrorMessage(null);
+      setPhase("idle");
     }
   };
 
@@ -510,6 +563,8 @@ export default function Home() {
                       <div className="mt-2 text-sm text-blue-600">
                         {entry.status === "processing"
                           ? "Dubbing in progress…"
+                          : entry.status === "canceled"
+                          ? "Canceled."
                           : entry.status === "ready"
                           ? "Dub ready."
                           : entry.errorMessage || "Dubbing failed."}
