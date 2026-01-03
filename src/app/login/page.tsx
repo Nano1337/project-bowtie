@@ -63,7 +63,7 @@ export default function LoginPage() {
             Password
           </label>
           <input
-            type="password"
+            type="text"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="w-full rounded-2xl border-2 border-blue-100 bg-white px-4 py-3 text-base text-blue-900 outline-none ring-2 ring-transparent transition focus:ring-yellow-200"

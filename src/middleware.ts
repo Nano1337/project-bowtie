@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const AUTH_COOKIE = "bowtie_auth";
+
+const hashPassword = async (password: string) => {
+  const data = new TextEncoder().encode(password);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+};
+
 const isPublicPath = (pathname: string) => {
   return (
     pathname.startsWith("/_next") ||
@@ -23,10 +33,22 @@ export async function middleware(request: NextRequest) {
   if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
-  const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = "/login";
-  loginUrl.searchParams.set("next", pathname);
-  return NextResponse.redirect(loginUrl);
+
+  const expectedHash = await hashPassword(expectedPassword);
+  const cookieValue = request.cookies.get(AUTH_COOKIE)?.value;
+
+  if (cookieValue !== expectedHash) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
