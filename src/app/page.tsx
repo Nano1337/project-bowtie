@@ -483,7 +483,7 @@ export default function Home() {
                         </span>
                       </div>
                       <div className="mt-1 text-xs uppercase tracking-[0.2em] text-blue-500">
-                        Target language:{" "}
+                        Translate To:{" "}
                         {
                           LANGUAGES.find(
                             (language) => language.code === entry.targetLang
@@ -560,7 +560,7 @@ export default function Home() {
                 {statusLabel}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm uppercase tracking-[0.18em] text-blue-700 shadow-[0_10px_20px_rgba(47,93,255,0.12)]">
-                <span>Target language</span>
+                <span>Translate To</span>
                 <select
                   className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
                   value={targetLang}
