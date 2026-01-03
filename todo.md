@@ -15,6 +15,7 @@
 - [ ] Add basic analytics (dubbing success + latency).
 - [x] Document how to stop/restart the local dev server.
 - [ ] Refine Conan theme polish (icons, textures, micro-animations).
+- [ ] Deploy to Vercel and verify auth + ElevenLabs API in prod.
 
 ## Later
 - [ ] Voice presets and character voice selection.

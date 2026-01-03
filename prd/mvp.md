@@ -10,6 +10,7 @@ Build a single-screen web app that unlocks behind a shared password. Once authen
 - Custom login screen with Conan artwork and passphrase gate.
 - Dubbing flow supports WAV uploads for ElevenLabs compatibility.
 - Session history with playback and clear option.
+- Vercel deployment config (Bun) added; env vars still need to be set in Vercel.
 
 ## Goals
 - Deliver a delightful, single-click voice capture → dubbing → playback loop.
