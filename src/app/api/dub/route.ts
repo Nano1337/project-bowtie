@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let status = "processing";
+  let status = "dubbing";
   for (let attempt = 0; attempt < 12; attempt += 1) {
     await sleep(1500);
     const statusResponse = await fetch(
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
       status?: string;
     };
     status = statusPayload.status ?? status;
-    if (status === "dubbed" || status === "completed") {
+    if (status === "dubbed") {
       break;
     }
     if (status === "failed") {
