@@ -1,23 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #e6ecf7;
-  --ink-muted: #9aa4b2;
-  --midnight: #08070c;
-  --nebula: #151025;
-  --pulse: #66f2ff;
-  --accent: #ff5c7a;
-  --accent-deep: #c91f48;
-  --glow: rgba(102, 242, 255, 0.45);
-  --glass: rgba(10, 12, 22, 0.65);
-  --card: rgba(16, 18, 32, 0.75);
+  --ink: #19305c;
+  --ink-muted: #4a6aa6;
+  --sky-top: #dff3ff;
+  --sky-mid: #bfe2ff;
+  --sky-bottom: #8cc7ff;
+  --accent-blue: #2f5dff;
+  --accent-red: #ff3b5c;
+  --accent-yellow: #ffd34d;
+  --accent-green: #3ccf91;
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-strong: rgba(255, 255, 255, 0.98);
+  --outline: rgba(25, 48, 92, 0.2);
 }
 
 @theme inline {
-  --color-background: var(--midnight);
+  --color-background: var(--sky-top);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-space-grotesk);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-fredoka);
+  --font-display: var(--font-baloo);
 }
 
 * {
@@ -26,18 +28,24 @@
 
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #1e1c3a 0%, #0c0a16 48%, #07060b 100%);
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 48%, var(--sky-bottom) 100%);
   color: var(--ink);
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-family: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
 }
 
 .font-display {
-  font-family: var(--font-fraunces), "Fraunces", serif;
+  font-family: var(--font-baloo), "Baloo 2", system-ui, sans-serif;
 }
 
 .glow-orb {
-  background: radial-gradient(circle, rgba(102, 242, 255, 0.35), rgba(102, 242, 255, 0));
-  filter: blur(10px);
+  background: radial-gradient(circle, rgba(255, 211, 77, 0.55), rgba(255, 211, 77, 0));
+  filter: blur(6px);
+}
+
+.comic-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.65) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: 0.6;
 }
 
 .bowtie-wrap {
@@ -52,20 +60,20 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, #ffe3b3, #ff8d5c 60%, #b7302e 100%);
-  box-shadow: 0 0 40px rgba(255, 141, 92, 0.35);
-  border: 3px solid rgba(255, 255, 255, 0.25);
+  background: radial-gradient(circle at 30% 30%, #fff7b1, #ffd34d 60%, #ffb100 100%);
+  box-shadow: 0 0 28px rgba(255, 179, 0, 0.45);
+  border: 4px solid rgba(25, 48, 92, 0.3);
 }
 
 .bowtie-wing {
   position: absolute;
   width: 160px;
   height: 140px;
-  background: linear-gradient(135deg, #4aa7ff 0%, #1b3b7a 55%, #0d1330 100%);
+  background: linear-gradient(135deg, #ff5c6f 0%, #ff3558 55%, #c9153a 100%);
   border-radius: 12px;
   transform: rotate(45deg);
-  box-shadow: 0 20px 45px rgba(15, 23, 52, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 35px rgba(255, 59, 92, 0.35);
+  border: 3px solid rgba(25, 48, 92, 0.35);
 }
 
 .bowtie-wing.left {
@@ -75,7 +83,7 @@ body {
 .bowtie-wing.right {
   right: -8%;
   transform: rotate(-45deg);
-  background: linear-gradient(225deg, #4aa7ff 0%, #1b3b7a 55%, #0d1330 100%);
+  background: linear-gradient(225deg, #ff5c6f 0%, #ff3558 55%, #c9153a 100%);
 }
 
 .bowtie-gear {
@@ -83,8 +91,9 @@ body {
   width: 56px;
   height: 56px;
   border-radius: 999px;
-  border: 3px dashed rgba(255, 255, 255, 0.6);
-  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.2);
+  border: 3px dashed rgba(25, 48, 92, 0.5);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 12px rgba(25, 48, 92, 0.15);
 }
 
 .bowtie-gear.left {
@@ -98,7 +107,7 @@ body {
 }
 
 .bowtie-listening {
-  animation: pulse-glow 1.6s ease-in-out infinite;
+  animation: pulse-glow 1.4s ease-in-out infinite;
 }
 
 .bowtie-processing .bowtie-gear {
@@ -118,10 +127,10 @@ body {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(102, 242, 255, 0.35);
+    box-shadow: 0 0 18px rgba(255, 211, 77, 0.5);
   }
   50% {
-    box-shadow: 0 0 42px rgba(102, 242, 255, 0.8);
+    box-shadow: 0 0 42px rgba(255, 211, 77, 0.9);
   }
 }
 

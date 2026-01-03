@@ -301,16 +301,17 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full glow-orb" />
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
+      <div className="pointer-events-none absolute inset-0 comic-dots" />
       <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
         <nav className="absolute left-0 right-0 top-8 mx-auto flex w-full max-w-6xl items-center justify-between px-6">
-          <span className="text-xs uppercase tracking-[0.4em] text-emerald-200/70">
+          <span className="text-xs uppercase tracking-[0.4em] text-blue-700/80">
             Bowtie Dubbing Lab
           </span>
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowHistory((prev) => !prev)}
-              className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-100 transition hover:bg-white/10"
+              className="rounded-full border-2 border-blue-200 bg-yellow-200/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-blue-900 shadow-[0_8px_18px_rgba(47,93,255,0.25)] transition hover:-translate-y-0.5 hover:bg-yellow-200"
               aria-expanded={showHistory}
               aria-controls="history-panel"
             >
@@ -318,28 +319,28 @@ export default function Home() {
             </button>
             <div
               id="history-panel"
-              className={`absolute right-0 z-10 mt-3 w-[320px] rounded-2xl border border-white/10 bg-[rgba(12,14,24,0.95)] p-4 text-left shadow-[0_24px_60px_rgba(8,8,20,0.6)] transition ${
+              className={`absolute right-0 z-10 mt-3 w-[320px] rounded-2xl border-2 border-blue-100 bg-white/95 p-4 text-left shadow-[0_24px_60px_rgba(47,93,255,0.25)] transition ${
                 showHistory ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-2"
               }`}
             >
-              <div className="flex items-center justify-between text-xs text-slate-300">
+              <div className="flex items-center justify-between text-xs text-blue-900">
                 <span className="uppercase tracking-[0.2em]">Session history</span>
-                <span className="text-slate-400">
+                <span className="text-blue-600">
                   {history.length}/{MAX_HISTORY}
                 </span>
               </div>
               <div className="mt-4 space-y-3">
                 {history.length === 0 ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-blue-700">
                     No recordings yet. Tap the bowtie to capture your first clip.
                   </p>
                 ) : (
                   history.map((entry) => (
                     <div
                       key={entry.id}
-                      className="rounded-xl border border-white/10 bg-white/5 p-3"
+                      className="rounded-xl border border-blue-100 bg-blue-50/70 p-3"
                     >
-                      <div className="flex items-center justify-between text-[11px] text-slate-300">
+                      <div className="flex items-center justify-between text-[11px] text-blue-800">
                         <span>
                           {
                             LANGUAGES.find(
@@ -347,7 +348,7 @@ export default function Home() {
                             )?.label
                           }
                         </span>
-                        <span>
+                        <span className="text-blue-500">
                           {new Date(entry.createdAt).toLocaleTimeString()}
                         </span>
                       </div>
@@ -355,7 +356,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => playUrl(entry.inputUrl)}
-                          className="rounded-full border border-white/20 px-3 py-1 text-[11px] font-semibold text-slate-100 transition hover:bg-white/10"
+                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50"
                         >
                           Play input
                         </button>
@@ -363,12 +364,12 @@ export default function Home() {
                           type="button"
                           onClick={() => playUrl(entry.outputUrl)}
                           disabled={!entry.outputUrl}
-                          className="rounded-full border border-white/20 px-3 py-1 text-[11px] font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {entry.outputUrl ? "Play output" : "Output pending"}
                         </button>
                       </div>
-                      <div className="mt-2 text-[11px] text-slate-400">
+                      <div className="mt-2 text-[11px] text-blue-600">
                         {entry.status === "processing"
                           ? "Dubbing in progress…"
                           : entry.status === "ready"
@@ -385,10 +386,10 @@ export default function Home() {
 
         <div className="flex w-full flex-col items-center gap-10">
           <header className="space-y-4">
-            <h1 className="font-display text-4xl leading-tight text-slate-100 md:text-5xl">
+            <h1 className="font-display text-4xl leading-tight text-blue-900 md:text-5xl">
               A voice-changing bowtie that translates your speech out loud.
             </h1>
-            <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-300">
+            <p className="mx-auto max-w-xl text-base leading-relaxed text-blue-800">
               Click the bowtie, speak naturally, and hear a dubbed translation
               with ElevenLabs. It&apos;s designed for fast pronunciation checks
               and instant feedback.
@@ -406,7 +407,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleBowtieClick}
-                className="relative grid h-full w-full place-items-center rounded-full border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_rgba(8,7,12,0.4))] shadow-[0_0_50px_rgba(12,255,255,0.2)] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
+                className="relative grid h-full w-full place-items-center rounded-full border-4 border-blue-200 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(191,226,255,0.3))] shadow-[0_24px_50px_rgba(47,93,255,0.25)] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-200"
                 aria-pressed={phase === "listening"}
               >
                 <span className="sr-only">Activate bowtie microphone</span>
@@ -418,14 +419,14 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex flex-col items-center gap-3 text-sm text-slate-300">
-              <p className="text-base font-medium text-slate-100">
+            <div className="flex flex-col items-center gap-3 text-sm text-blue-800">
+              <p className="text-base font-medium text-blue-900">
                 {statusLabel}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-200">
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.2em] text-blue-700 shadow-[0_10px_20px_rgba(47,93,255,0.12)]">
                 <span>Target language</span>
                 <select
-                  className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
+                  className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
                   value={targetLang}
                   onChange={(event) => setTargetLang(event.target.value)}
                 >
@@ -440,10 +441,10 @@ export default function Home() {
                   ))}
                 </select>
               </div>
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-200">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-blue-700">
                 <span>Playback speed</span>
                 <select
-                  className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
+                  className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
                   value={playbackRate}
                   onChange={(event) =>
                     setPlaybackRate(Number(event.target.value))
@@ -456,12 +457,12 @@ export default function Home() {
                 </select>
               </div>
               {errorMessage ? (
-                <p className="text-sm text-rose-200">{errorMessage}</p>
+                <p className="text-sm text-red-500">{errorMessage}</p>
               ) : null}
             </div>
           </section>
 
-          <footer className="flex flex-col items-center gap-2 text-xs text-slate-400">
+          <footer className="flex flex-col items-center gap-2 text-xs text-blue-700">
             <p>Tip: click once to start listening, click again to stop early.</p>
             <p>
               All audio stays in-session and is sent only to ElevenLabs for
