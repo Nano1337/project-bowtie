@@ -24,6 +24,7 @@ export default function Home() {
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const autoStopTimerRef = useRef<number | null>(null);
+  const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
 
   const statusLabel = useMemo(() => {
     switch (phase) {
@@ -54,6 +55,7 @@ export default function Home() {
 
   const startRecording = async () => {
     setErrorMessage(null);
+    log("Requesting microphone access.");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -83,9 +85,11 @@ export default function Home() {
 
       recorder.start();
       setPhase("listening");
+      log("Recording started.");
 
       autoStopTimerRef.current = window.setTimeout(() => {
         if (recorder.state !== "inactive") {
+          log("Auto-stopping recording after timeout.");
           recorder.stop();
         }
       }, 5000);
@@ -102,6 +106,7 @@ export default function Home() {
       autoStopTimerRef.current = null;
     }
     if (recorderRef.current?.state === "recording") {
+      log("Manual stop requested.");
       recorderRef.current.stop();
     }
     setPhase("processing");
@@ -110,6 +115,11 @@ export default function Home() {
   const requestDubbing = async (audioBlob: Blob) => {
     setPhase("processing");
     try {
+      log("Uploading audio for dubbing.", {
+        size: audioBlob.size,
+        type: audioBlob.type,
+        targetLang,
+      });
       const formData = new FormData();
       formData.append("audio", audioBlob, "bowtie.webm");
       formData.append("target_lang", targetLang);
@@ -121,6 +131,10 @@ export default function Home() {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
+        log("Dubbing request failed.", {
+          status: response.status,
+          error: payload?.error,
+        });
         throw new Error(payload?.error || "Dubbing failed.");
       }
 
@@ -131,10 +145,12 @@ export default function Home() {
 
       const audio = new Audio(audioUrl);
       setPhase("speaking");
+      log("Playing dubbed audio.");
       audio.play();
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
         setPhase("idle");
+        log("Playback finished.");
       };
     } catch (error) {
       console.error(error);
