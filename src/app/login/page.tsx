@@ -53,7 +53,7 @@ export default function LoginPage() {
           />
         </div>
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
-          <label className="block text-xs uppercase tracking-[0.3em] text-blue-700">
+          <label className="block text-sm uppercase tracking-[0.25em] text-blue-700">
             Password
           </label>
           <input
@@ -64,11 +64,11 @@ export default function LoginPage() {
             placeholder="Shared password"
             required
           />
-          {error ? <p className="text-sm text-red-500">{error}</p> : null}
+          {error ? <p className="text-base text-red-500">{error}</p> : null}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full border-2 border-blue-200 bg-yellow-200 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-blue-900 transition hover:-translate-y-0.5 hover:bg-yellow-200/80 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full border-2 border-blue-200 bg-yellow-200 px-4 py-3 text-base font-semibold uppercase tracking-[0.25em] text-blue-900 transition hover:-translate-y-0.5 hover:bg-yellow-200/80 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Checking…" : "Enter"}
           </button>

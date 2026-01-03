@@ -425,14 +425,14 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 comic-dots" />
       <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
         <nav className="absolute left-0 right-0 top-8 mx-auto flex w-full max-w-6xl items-center justify-between px-6">
-          <span className="text-xs uppercase tracking-[0.4em] text-blue-700/80">
+          <span className="text-sm uppercase tracking-[0.35em] text-blue-700/80">
             Detective Conan
           </span>
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowHistory((prev) => !prev)}
-              className="rounded-full border-2 border-blue-200 bg-yellow-200/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-blue-900 shadow-[0_8px_18px_rgba(47,93,255,0.25)] transition hover:-translate-y-0.5 hover:bg-yellow-200"
+              className="rounded-full border-2 border-blue-200 bg-yellow-200/90 px-4 py-2 text-sm font-semibold uppercase tracking-[0.22em] text-blue-900 shadow-[0_8px_18px_rgba(47,93,255,0.25)] transition hover:-translate-y-0.5 hover:bg-yellow-200"
               aria-expanded={showHistory}
               aria-controls="history-panel"
             >
@@ -444,7 +444,7 @@ export default function Home() {
                 showHistory ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-2"
               }`}
             >
-              <div className="flex items-center justify-between text-xs text-blue-900">
+              <div className="flex items-center justify-between text-sm text-blue-900">
                 <span className="uppercase tracking-[0.2em]">Session history</span>
                 <div className="flex items-center gap-2 text-blue-600">
                   <span>
@@ -453,7 +453,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={clearHistory}
-                    className="rounded-full border border-blue-200 bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-700 transition hover:bg-blue-50"
+                    className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 transition hover:bg-blue-50"
                   >
                     Clear
                   </button>
@@ -461,7 +461,7 @@ export default function Home() {
               </div>
               <div className="mt-4 space-y-3">
                 {history.length === 0 ? (
-                  <p className="text-sm text-blue-700">
+                  <p className="text-base text-blue-700">
                     No recordings yet. Tap the bowtie to capture your first clip.
                   </p>
                 ) : (
@@ -470,7 +470,7 @@ export default function Home() {
                       key={entry.id}
                       className="rounded-xl border border-blue-100 bg-blue-50/70 p-3"
                     >
-                      <div className="flex items-center justify-between text-[11px] text-blue-800">
+                      <div className="flex items-center justify-between text-sm text-blue-800">
                         <span>
                           {
                             LANGUAGES.find(
@@ -478,11 +478,11 @@ export default function Home() {
                             )?.label
                           }
                         </span>
-                        <span className="text-blue-500">
+                        <span className="text-blue-500 text-sm">
                           {new Date(entry.createdAt).toLocaleTimeString()}
                         </span>
                       </div>
-                      <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-blue-500">
+                      <div className="mt-1 text-xs uppercase tracking-[0.2em] text-blue-500">
                         Target language:{" "}
                         {
                           LANGUAGES.find(
@@ -494,7 +494,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => playUrl(entry.inputUrl)}
-                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50"
+                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-sm font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50"
                         >
                           Play input
                         </button>
@@ -502,12 +502,12 @@ export default function Home() {
                           type="button"
                           onClick={() => playUrl(entry.outputUrl)}
                           disabled={!entry.outputUrl}
-                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-full border border-blue-200 bg-white px-3 py-1 text-sm font-semibold text-blue-900 transition hover:-translate-y-0.5 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {entry.outputUrl ? "Play output" : "Output pending"}
                         </button>
                       </div>
-                      <div className="mt-2 text-[11px] text-blue-600">
+                      <div className="mt-2 text-sm text-blue-600">
                         {entry.status === "processing"
                           ? "Dubbing in progress…"
                           : entry.status === "ready"
@@ -556,14 +556,14 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex flex-col items-center gap-3 text-sm text-blue-800">
-              <p className="text-base font-medium text-blue-900">
+            <div className="flex flex-col items-center gap-3 text-base text-blue-800">
+              <p className="text-lg font-medium text-blue-900">
                 {statusLabel}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.2em] text-blue-700 shadow-[0_10px_20px_rgba(47,93,255,0.12)]">
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm uppercase tracking-[0.18em] text-blue-700 shadow-[0_10px_20px_rgba(47,93,255,0.12)]">
                 <span>Target language</span>
                 <select
-                  className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
+                  className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
                   value={targetLang}
                   onChange={(event) => setTargetLang(event.target.value)}
                 >
@@ -578,7 +578,7 @@ export default function Home() {
                   ))}
                 </select>
               </div>
-              <div className="flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-blue-700">
+              <div className="flex flex-col items-center gap-2 text-sm uppercase tracking-[0.18em] text-blue-700">
                 <span>Playback speed</span>
                 <div className="flex items-center gap-3">
                   <input
@@ -594,18 +594,18 @@ export default function Home() {
                     }}
                     className="h-2 w-40 accent-yellow-300"
                   />
-                  <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900">
+                  <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-sm font-semibold text-blue-900">
                     {playbackRate.toFixed(2)}x
                   </span>
                 </div>
               </div>
               {errorMessage ? (
-                <p className="text-sm text-red-500">{errorMessage}</p>
+                <p className="text-base text-red-500">{errorMessage}</p>
               ) : null}
             </div>
           </section>
 
-          <footer className="flex flex-col items-center gap-2 text-xs text-blue-700">
+          <footer className="flex flex-col items-center gap-2 text-sm text-blue-700">
             <p>Tap again to stop early.</p>
           </footer>
         </div>
