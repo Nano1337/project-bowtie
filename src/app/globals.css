@@ -69,7 +69,7 @@ body {
 
 .bowtie-listening .bowtie-image,
 .bowtie-processing .bowtie-image {
-  animation: bowtie-pulse 1.4s ease-in-out infinite;
+  animation: bowtie-pulse 1.2s ease-in-out infinite;
 }
 
 .bowtie-speaking .bowtie-image {
@@ -90,13 +90,13 @@ body {
   0%,
   100% {
     filter: drop-shadow(0 18px 35px rgba(255, 59, 92, 0.25))
-      drop-shadow(0 0 20px rgba(255, 211, 77, 0.35));
+      drop-shadow(0 0 26px rgba(255, 211, 77, 0.5));
     transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 22px 45px rgba(255, 59, 92, 0.35))
-      drop-shadow(0 0 32px rgba(255, 211, 77, 0.7));
-    transform: scale(1.03);
+    filter: drop-shadow(0 26px 55px rgba(255, 59, 92, 0.55))
+      drop-shadow(0 0 52px rgba(255, 211, 77, 0.9));
+    transform: scale(1.08);
   }
 }
 
