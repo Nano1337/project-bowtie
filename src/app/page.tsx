@@ -547,13 +547,12 @@ export default function Home() {
                 aria-pressed={phase === "listening"}
               >
                 <span className="sr-only">Activate bowtie microphone</span>
+                <div className="bowtie-signal" />
                 <img
-                  src="/images/bowtie.svg"
-                  alt=""
-                  className="bowtie-svg"
+                  src="/images/bow.png"
+                  alt="Detective Conan bowtie"
+                  className="bowtie-image"
                 />
-                <div className="gear-ring" />
-                <div className="bowtie-core" />
               </button>
             </div>
 
