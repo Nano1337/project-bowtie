@@ -33,7 +33,10 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState("ja");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const playbackOptions = [0.75, 0.9, 1.0, 1.1, 1.25] as const;
+  const [playbackRate, setPlaybackRate] = useState<typeof playbackOptions[number]>(
+    1.0
+  );
   const [showHistory, setShowHistory] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -45,7 +48,10 @@ export default function Home() {
   const abortRef = useRef<AbortController | null>(null);
   const activeEntryIdRef = useRef<string | null>(null);
   const playbackRef = useRef<HTMLAudioElement | null>(null);
-  const playbackOptions = [0.75, 0.9, 1.0, 1.1, 1.25] as const;
+  const playbackIndex = useMemo(() => {
+    const index = playbackOptions.indexOf(playbackRate);
+    return index === -1 ? 2 : index;
+  }, [playbackRate]);
 
   const convertToWav = async (blob: Blob) => {
     const arrayBuffer = await blob.arrayBuffer();
@@ -642,7 +648,7 @@ export default function Home() {
                     min="0"
                     max="4"
                     step="1"
-                    value={playbackOptions.indexOf(playbackRate)}
+                    value={playbackIndex}
                     onChange={(event) => {
                       const next =
                         playbackOptions[Number(event.target.value)] ?? 1.0;
