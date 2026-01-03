@@ -527,7 +527,7 @@ export default function Home() {
             <h1 className="font-display text-4xl leading-tight text-blue-900 md:text-5xl">
               There is always only one truth!
             </h1>
-            <p className="mx-auto max-w-lg text-base leading-relaxed text-blue-800">
+            <p className="mx-auto max-w-lg text-lg leading-relaxed text-blue-800">
               One truth prevails. Let it speak in a new language.
             </p>
           </header>
