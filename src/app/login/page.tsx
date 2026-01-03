@@ -1,15 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const nextPath = useMemo(
-    () => searchParams.get("next") || "/",
-    [searchParams]
-  );
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,11 +25,7 @@ export default function LoginPage() {
         throw new Error(payload?.error || "Authentication failed.");
       }
 
-      const destination =
-        nextPath && nextPath.startsWith("/") && nextPath !== "/login"
-          ? nextPath
-          : "/";
-      window.location.href = destination;
+      window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
       setIsSubmitting(false);
