@@ -6,6 +6,10 @@ Build a single-screen web app that unlocks behind a shared password. Once authen
 ## Current Status
 - Local dev server runs via Bun (`bun dev`).
 - Environment variables are required in `.env.local`.
+- Conan-themed UI (playful palette, fonts, and bowtie art) implemented.
+- Custom login screen with Conan artwork and passphrase gate.
+- Dubbing flow supports WAV uploads for ElevenLabs compatibility.
+- Session history with playback and clear option.
 
 ## Goals
 - Deliver a delightful, single-click voice capture → dubbing → playback loop.
@@ -27,11 +31,13 @@ Build a single-screen web app that unlocks behind a shared password. Once authen
 
 ## Functional Requirements
 - **Auth:** HTTP Basic Auth with a single shared password from `APP_PASSWORD`.
+- **Login screen:** Custom Conan-themed login page that accepts the shared password.
 - **Recording:** Use browser microphone permission + MediaRecorder.
 - **Audio upload:** `POST /api/dub` with `audio` blob + `target_lang`.
 - **Playback:** Immediately play back returned dubbed audio.
 - **Language selector:** Simple dropdown for target language.
 - **Error handling:** Clear error message when mic blocked or API fails.
+- **History:** In-session history with input/output replay and clear option.
 
 ## Visual & Motion Requirements
 - Central bowtie graphic with bold, playful styling.
