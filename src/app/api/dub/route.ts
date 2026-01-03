@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   }
 
   let status = "dubbing";
-  for (let attempt = 0; attempt < 12; attempt += 1) {
+  for (let attempt = 0; attempt < 16; attempt += 1) {
     await sleep(1500);
     const statusResponse = await fetch(
       `${ELEVENLABS_BASE_URL}/dubbing/${dubbingId}`,
@@ -92,28 +92,39 @@ export async function POST(request: Request) {
     }
   }
 
-  const audioResponse = await fetch(
-    `${ELEVENLABS_BASE_URL}/dubbing/${dubbingId}/audio/${targetLang}`,
-    {
-      headers: {
-        "xi-api-key": apiKey,
-      },
-    }
-  );
-
-  if (!audioResponse.ok || !audioResponse.body) {
+  if (status !== "dubbed") {
     return Response.json(
-      { error: "Dubbing audio not ready yet." },
+      { error: "Dubbing is still processing." },
       { status: 504 }
     );
   }
 
-  return new Response(audioResponse.body, {
-    status: 200,
-    headers: {
-      "Content-Type":
-        audioResponse.headers.get("content-type") || "audio/mpeg",
-      "Cache-Control": "no-store",
-    },
-  });
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const audioResponse = await fetch(
+      `${ELEVENLABS_BASE_URL}/dubbing/${dubbingId}/audio/${targetLang}`,
+      {
+        headers: {
+          "xi-api-key": apiKey,
+        },
+      }
+    );
+
+    if (audioResponse.ok && audioResponse.body) {
+      return new Response(audioResponse.body, {
+        status: 200,
+        headers: {
+          "Content-Type":
+            audioResponse.headers.get("content-type") || "audio/mpeg",
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
+    await sleep(1200);
+  }
+
+  return Response.json(
+    { error: "Dubbing audio not ready yet." },
+    { status: 504 }
+  );
 }
