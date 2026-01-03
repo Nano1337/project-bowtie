@@ -3,6 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Phase = "idle" | "listening" | "processing" | "speaking" | "error";
+type HistoryStatus = "processing" | "ready" | "error";
+type HistoryEntry = {
+  id: string;
+  createdAt: string;
+  targetLang: string;
+  inputUrl: string;
+  outputUrl?: string;
+  status: HistoryStatus;
+  errorMessage?: string;
+};
 
 const LANGUAGES = [
   { code: "en", label: "English (US)", enabled: true },
@@ -15,16 +25,44 @@ const LANGUAGES = [
   { code: "ko", label: "Korean", enabled: true },
   { code: "fr", label: "French", enabled: true },
 ];
+const MAX_HISTORY = 5;
 
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState("ja");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [playbackRate, setPlaybackRate] = useState(0.9);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const autoStopTimerRef = useRef<number | null>(null);
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
+
+  const revokeEntry = (entry: HistoryEntry) => {
+    URL.revokeObjectURL(entry.inputUrl);
+    if (entry.outputUrl) {
+      URL.revokeObjectURL(entry.outputUrl);
+    }
+  };
+
+  const addHistoryEntry = (entry: HistoryEntry) => {
+    setHistory((prev) => {
+      const next = [entry, ...prev];
+      if (next.length > MAX_HISTORY) {
+        const removed = next.slice(MAX_HISTORY);
+        removed.forEach(revokeEntry);
+        return next.slice(0, MAX_HISTORY);
+      }
+      return next;
+    });
+  };
+
+  const updateHistoryEntry = (id: string, updates: Partial<HistoryEntry>) => {
+    setHistory((prev) =>
+      prev.map((entry) => (entry.id === id ? { ...entry, ...updates } : entry))
+    );
+  };
 
   const statusLabel = useMemo(() => {
     switch (phase) {
@@ -50,8 +88,9 @@ export default function Home() {
         recorderRef.current?.stop();
       }
       streamRef.current?.getTracks().forEach((track) => track.stop());
+      history.forEach(revokeEntry);
     };
-  }, []);
+  }, [history]);
 
   const startRecording = async () => {
     setErrorMessage(null);
@@ -80,7 +119,16 @@ export default function Home() {
           setPhase("idle");
           return;
         }
-        await requestDubbing(audioBlob);
+        const entryId = crypto.randomUUID();
+        const inputUrl = URL.createObjectURL(audioBlob);
+        addHistoryEntry({
+          id: entryId,
+          createdAt: new Date().toISOString(),
+          targetLang,
+          inputUrl,
+          status: "processing",
+        });
+        await requestDubbing(audioBlob, entryId);
       };
 
       recorder.start();
@@ -112,7 +160,7 @@ export default function Home() {
     setPhase("processing");
   };
 
-  const requestDubbing = async (audioBlob: Blob) => {
+  const requestDubbing = async (audioBlob: Blob, entryId: string) => {
     setPhase("processing");
     try {
       log("Uploading audio for dubbing.", {
@@ -120,6 +168,7 @@ export default function Home() {
         type: audioBlob.type,
         targetLang,
       });
+      updateHistoryEntry(entryId, { status: "processing", errorMessage: undefined });
       const formData = new FormData();
       formData.append("audio", audioBlob, "bowtie.webm");
       formData.append("target_lang", targetLang);
@@ -139,7 +188,7 @@ export default function Home() {
         if (!dubbingId) {
           throw new Error(payload?.error || "Dubbing failed.");
         }
-        await pollDubbingStatus(dubbingId);
+        await pollDubbingStatus(dubbingId, entryId);
         return;
       }
 
@@ -156,18 +205,23 @@ export default function Home() {
       const buffer = await response.arrayBuffer();
       const dubbedAudio = new Blob([buffer], { type: contentType });
       const audioUrl = URL.createObjectURL(dubbedAudio);
+      updateHistoryEntry(entryId, { outputUrl: audioUrl, status: "ready" });
 
       const audio = new Audio(audioUrl);
       setPhase("speaking");
+      audio.playbackRate = playbackRate;
       log("Playing dubbed audio.");
       audio.play();
       audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
         setPhase("idle");
         log("Playback finished.");
       };
     } catch (error) {
       console.error(error);
+      updateHistoryEntry(entryId, {
+        status: "error",
+        errorMessage: error instanceof Error ? error.message : "Dubbing failed.",
+      });
       setErrorMessage(
         error instanceof Error ? error.message : "Dubbing failed."
       );
@@ -175,7 +229,7 @@ export default function Home() {
     }
   };
 
-  const pollDubbingStatus = async (dubbingId: string) => {
+  const pollDubbingStatus = async (dubbingId: string, entryId: string) => {
     const maxAttempts = 20;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       log("Polling dubbing status.", { attempt: attempt + 1, dubbingId });
@@ -208,13 +262,14 @@ export default function Home() {
       const buffer = await response.arrayBuffer();
       const dubbedAudio = new Blob([buffer], { type: contentType });
       const audioUrl = URL.createObjectURL(dubbedAudio);
+      updateHistoryEntry(entryId, { outputUrl: audioUrl, status: "ready" });
 
       const audio = new Audio(audioUrl);
       setPhase("speaking");
+      audio.playbackRate = playbackRate;
       log("Playing dubbed audio from status poll.");
       audio.play();
       audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
         setPhase("idle");
         log("Playback finished.");
       };
@@ -222,6 +277,13 @@ export default function Home() {
     }
 
     throw new Error("Dubbing is still processing.");
+  };
+
+  const playUrl = (url?: string) => {
+    if (!url) return;
+    const audio = new Audio(url);
+    audio.playbackRate = playbackRate;
+    audio.play();
   };
 
   const handleBowtieClick = () => {
@@ -238,74 +300,158 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full glow-orb" />
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
-      <main className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
-        <header className="space-y-4">
-          <p className="text-sm uppercase tracking-[0.4em] text-emerald-200/70">
-            Bowtie Dubbing Lab
-          </p>
-          <h1 className="font-display text-4xl leading-tight text-slate-100 md:text-5xl">
-            A voice-changing bowtie that translates your speech out loud.
-          </h1>
-          <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-300">
-            Click the bowtie, speak naturally, and hear a dubbed translation with
-            ElevenLabs. It&apos;s designed for fast pronunciation checks and
-            instant feedback.
-          </p>
-        </header>
+      <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-12 px-6 py-16 text-center lg:flex-row lg:items-start lg:text-left">
+        <div className="flex w-full flex-col items-center gap-10 lg:flex-1 lg:items-start">
+          <header className="space-y-4">
+            <p className="text-sm uppercase tracking-[0.4em] text-emerald-200/70">
+              Bowtie Dubbing Lab
+            </p>
+            <h1 className="font-display text-4xl leading-tight text-slate-100 md:text-5xl">
+              A voice-changing bowtie that translates your speech out loud.
+            </h1>
+            <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-300 lg:mx-0">
+              Click the bowtie, speak naturally, and hear a dubbed translation
+              with ElevenLabs. It&apos;s designed for fast pronunciation checks
+              and instant feedback.
+            </p>
+          </header>
 
-        <section className="flex w-full flex-col items-center gap-8">
-          <div
-            className={`bowtie-wrap ${
-              phase === "listening" ? "bowtie-listening" : ""
-            } ${phase === "processing" ? "bowtie-processing" : ""} ${
-              phase === "speaking" ? "bowtie-speaking" : ""
-            }`}
-          >
-            <button
-              type="button"
-              onClick={handleBowtieClick}
-              className="relative grid h-full w-full place-items-center rounded-full border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_rgba(8,7,12,0.4))] shadow-[0_0_50px_rgba(12,255,255,0.2)] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
-              aria-pressed={phase === "listening"}
+          <section className="flex w-full flex-col items-center gap-8 lg:items-start">
+            <div
+              className={`bowtie-wrap ${
+                phase === "listening" ? "bowtie-listening" : ""
+              } ${phase === "processing" ? "bowtie-processing" : ""} ${
+                phase === "speaking" ? "bowtie-speaking" : ""
+              }`}
             >
-              <span className="sr-only">Activate bowtie microphone</span>
-              <div className="bowtie-wing left" />
-              <div className="bowtie-wing right" />
-              <div className="bowtie-gear left" />
-              <div className="bowtie-gear right" />
-              <div className="bowtie-core" />
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center gap-3 text-sm text-slate-300">
-            <p className="text-base font-medium text-slate-100">{statusLabel}</p>
-            <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-200">
-              <span>Target language</span>
-              <select
-                className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
-                value={targetLang}
-                onChange={(event) => setTargetLang(event.target.value)}
+              <button
+                type="button"
+                onClick={handleBowtieClick}
+                className="relative grid h-full w-full place-items-center rounded-full border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_rgba(8,7,12,0.4))] shadow-[0_0_50px_rgba(12,255,255,0.2)] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200/80"
+                aria-pressed={phase === "listening"}
               >
-                {LANGUAGES.map((language) => (
-                  <option
-                    key={language.code}
-                    value={language.code}
-                    disabled={!language.enabled}
-                  >
-                    {language.label}
-                  </option>
-                ))}
-              </select>
+                <span className="sr-only">Activate bowtie microphone</span>
+                <div className="bowtie-wing left" />
+                <div className="bowtie-wing right" />
+                <div className="bowtie-gear left" />
+                <div className="bowtie-gear right" />
+                <div className="bowtie-core" />
+              </button>
             </div>
-            {errorMessage ? (
-              <p className="text-sm text-rose-200">{errorMessage}</p>
-            ) : null}
-          </div>
-        </section>
 
-        <footer className="flex flex-col items-center gap-2 text-xs text-slate-400">
-          <p>Tip: click once to start listening, click again to stop early.</p>
-          <p>All audio stays in-session and is sent only to ElevenLabs for dubbing.</p>
-        </footer>
+            <div className="flex flex-col items-center gap-3 text-sm text-slate-300 lg:items-start">
+              <p className="text-base font-medium text-slate-100">
+                {statusLabel}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-200 lg:justify-start">
+                <span>Target language</span>
+                <select
+                  className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
+                  value={targetLang}
+                  onChange={(event) => setTargetLang(event.target.value)}
+                >
+                  {LANGUAGES.map((language) => (
+                    <option
+                      key={language.code}
+                      value={language.code}
+                      disabled={!language.enabled}
+                    >
+                      {language.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-200">
+                <span>Playback speed</span>
+                <select
+                  className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
+                  value={playbackRate}
+                  onChange={(event) =>
+                    setPlaybackRate(Number(event.target.value))
+                  }
+                >
+                  <option value={0.85}>0.85x</option>
+                  <option value={0.9}>0.9x</option>
+                  <option value={1}>1.0x</option>
+                  <option value={1.1}>1.1x</option>
+                </select>
+              </div>
+              {errorMessage ? (
+                <p className="text-sm text-rose-200">{errorMessage}</p>
+              ) : null}
+            </div>
+          </section>
+
+          <footer className="flex flex-col items-center gap-2 text-xs text-slate-400 lg:items-start">
+            <p>Tip: click once to start listening, click again to stop early.</p>
+            <p>
+              All audio stays in-session and is sent only to ElevenLabs for
+              dubbing.
+            </p>
+          </footer>
+        </div>
+
+        <aside className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-6 text-left shadow-[0_20px_50px_rgba(10,12,28,0.5)]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">
+              Session history
+            </h2>
+            <span className="text-xs text-slate-400">
+              {history.length}/{MAX_HISTORY}
+            </span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {history.length === 0 ? (
+              <p className="text-sm text-slate-400">
+                No recordings yet. Tap the bowtie to capture your first clip.
+              </p>
+            ) : (
+              history.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                >
+                  <div className="flex items-center justify-between text-xs text-slate-300">
+                    <span>
+                      {
+                        LANGUAGES.find(
+                          (language) => language.code === entry.targetLang
+                        )?.label
+                      }
+                    </span>
+                    <span>
+                      {new Date(entry.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => playUrl(entry.inputUrl)}
+                      className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
+                    >
+                      Play input
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => playUrl(entry.outputUrl)}
+                      disabled={!entry.outputUrl}
+                      className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {entry.outputUrl ? "Play output" : "Output pending"}
+                    </button>
+                  </div>
+                  <div className="mt-2 text-xs text-slate-400">
+                    {entry.status === "processing"
+                      ? "Dubbing in progress…"
+                      : entry.status === "ready"
+                      ? "Dub ready."
+                      : entry.errorMessage || "Dubbing failed."}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
       </main>
     </div>
   );
