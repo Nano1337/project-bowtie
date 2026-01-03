@@ -8,6 +8,7 @@ type HistoryEntry = {
   id: string;
   createdAt: string;
   targetLang: string;
+  inputMime: string;
   inputUrl: string;
   outputUrl?: string;
   status: HistoryStatus;
@@ -39,6 +40,7 @@ export default function Home() {
   const chunksRef = useRef<Blob[]>([]);
   const autoStopTimerRef = useRef<number | null>(null);
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
+  const inputMimeRef = useRef<string>("");
 
   const revokeEntry = (entry: HistoryEntry) => {
     URL.revokeObjectURL(entry.inputUrl);
@@ -100,7 +102,18 @@ export default function Home() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const recorder = new MediaRecorder(stream);
+      const mimeCandidates = [
+        "audio/webm;codecs=opus",
+        "audio/ogg;codecs=opus",
+        "audio/mp4",
+        "audio/webm",
+      ];
+      const mimeType =
+        mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) ||
+        "";
+      inputMimeRef.current = mimeType;
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       recorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -114,7 +127,9 @@ export default function Home() {
         stream.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
 
-        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const resolvedMime =
+          recorder.mimeType || inputMimeRef.current || "audio/webm";
+        const audioBlob = new Blob(chunksRef.current, { type: resolvedMime });
         chunksRef.current = [];
         if (audioBlob.size === 0) {
           setPhase("idle");
@@ -126,6 +141,7 @@ export default function Home() {
           id: entryId,
           createdAt: new Date().toISOString(),
           targetLang,
+          inputMime: audioBlob.type || inputMimeRef.current || "audio/webm",
           inputUrl,
           status: "processing",
         });
@@ -280,11 +296,23 @@ export default function Home() {
     throw new Error("Dubbing is still processing.");
   };
 
-  const playUrl = (url?: string) => {
+  const playUrl = async (url?: string) => {
     if (!url) return;
     const audio = new Audio(url);
     audio.playbackRate = playbackRate;
-    audio.play();
+    try {
+      await audio.play();
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Audio playback failed on this browser.");
+    }
+  };
+
+  const clearHistory = () => {
+    setHistory((prev) => {
+      prev.forEach(revokeEntry);
+      return [];
+    });
   };
 
   const handleBowtieClick = () => {
@@ -325,9 +353,18 @@ export default function Home() {
             >
               <div className="flex items-center justify-between text-xs text-blue-900">
                 <span className="uppercase tracking-[0.2em]">Session history</span>
-                <span className="text-blue-600">
-                  {history.length}/{MAX_HISTORY}
-                </span>
+                <div className="flex items-center gap-2 text-blue-600">
+                  <span>
+                    {history.length}/{MAX_HISTORY}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearHistory}
+                    className="rounded-full border border-blue-200 bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-700 transition hover:bg-blue-50"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
               <div className="mt-4 space-y-3">
                 {history.length === 0 ? (
@@ -351,6 +388,14 @@ export default function Home() {
                         <span className="text-blue-500">
                           {new Date(entry.createdAt).toLocaleTimeString()}
                         </span>
+                      </div>
+                      <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-blue-500">
+                        Target language:{" "}
+                        {
+                          LANGUAGES.find(
+                            (language) => language.code === entry.targetLang
+                          )?.label
+                        }
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <button
