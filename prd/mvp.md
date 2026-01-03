@@ -3,6 +3,10 @@
 ## Summary
 Build a single-screen web app that unlocks behind a shared password. Once authenticated, the user sees a large Detective Conan-inspired voice-changing bowtie in the center. Clicking the bowtie records a short voice snippet, sends it to ElevenLabs dubbing, then plays back the translated audio.
 
+## Current Status
+- Local dev server runs via Bun (`bun dev`).
+- Environment variables are required in `.env.local`.
+
 ## Goals
 - Deliver a delightful, single-click voice capture → dubbing → playback loop.
 - Provide clear visual states: listening, processing (gears spin), speaking.
