@@ -31,7 +31,11 @@ export default function LoginPage() {
         throw new Error(payload?.error || "Authentication failed.");
       }
 
-      window.location.href = nextPath;
+      const destination =
+        nextPath && nextPath.startsWith("/") && nextPath !== "/login"
+          ? nextPath
+          : "/";
+      window.location.href = destination;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
       setIsSubmitting(false);
