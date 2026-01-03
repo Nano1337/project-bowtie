@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Phase = "idle" | "listening" | "processing" | "speaking" | "error";
-type HistoryStatus = "processing" | "ready" | "error" | "canceled";
+type HistoryStatus = "processing" | "ready" | "error";
 type HistoryEntry = {
   id: string;
   createdAt: string;
@@ -130,6 +130,16 @@ export default function Home() {
     setHistory((prev) =>
       prev.map((entry) => (entry.id === id ? { ...entry, ...updates } : entry))
     );
+  };
+
+  const removeHistoryEntry = (id: string) => {
+    setHistory((prev) => {
+      const entry = prev.find((item) => item.id === id);
+      if (entry) {
+        revokeEntry(entry);
+      }
+      return prev.filter((item) => item.id !== id);
+    });
   };
 
   const statusLabel = useMemo(() => {
@@ -334,10 +344,7 @@ export default function Home() {
       };
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
-        updateHistoryEntry(entryId, {
-          status: "canceled",
-          errorMessage: "Canceled.",
-        });
+        removeHistoryEntry(entryId);
         setPhase("idle");
         setErrorMessage(null);
         return;
@@ -458,10 +465,7 @@ export default function Home() {
         abortRef.current = null;
       }
       if (activeEntryIdRef.current) {
-        updateHistoryEntry(activeEntryIdRef.current, {
-          status: "canceled",
-          errorMessage: "Canceled.",
-        });
+        removeHistoryEntry(activeEntryIdRef.current);
         activeEntryIdRef.current = null;
       }
       playbackRef.current?.pause();
@@ -563,8 +567,6 @@ export default function Home() {
                       <div className="mt-2 text-sm text-blue-600">
                         {entry.status === "processing"
                           ? "Dubbing in progress…"
-                          : entry.status === "canceled"
-                          ? "Canceled."
                           : entry.status === "ready"
                           ? "Dub ready."
                           : entry.errorMessage || "Dubbing failed."}
