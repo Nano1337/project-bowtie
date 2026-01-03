@@ -301,8 +301,8 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full glow-orb" />
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
-      <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-12 px-6 py-16 text-center lg:text-left">
-        <nav className="relative flex w-full items-center justify-between">
+      <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
+        <nav className="absolute left-0 right-0 top-8 mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <span className="text-xs uppercase tracking-[0.4em] text-emerald-200/70">
             Bowtie Dubbing Lab
           </span>
@@ -383,19 +383,19 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className="flex w-full flex-col items-center gap-10 lg:items-start">
+        <div className="flex w-full flex-col items-center gap-10">
           <header className="space-y-4">
             <h1 className="font-display text-4xl leading-tight text-slate-100 md:text-5xl">
               A voice-changing bowtie that translates your speech out loud.
             </h1>
-            <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-300 lg:mx-0">
+            <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-300">
               Click the bowtie, speak naturally, and hear a dubbed translation
               with ElevenLabs. It&apos;s designed for fast pronunciation checks
               and instant feedback.
             </p>
           </header>
 
-          <section className="flex w-full flex-col items-center gap-8 lg:items-start">
+          <section className="flex w-full flex-col items-center gap-8">
             <div
               className={`bowtie-wrap ${
                 phase === "listening" ? "bowtie-listening" : ""
@@ -418,11 +418,11 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex flex-col items-center gap-3 text-sm text-slate-300 lg:items-start">
+            <div className="flex flex-col items-center gap-3 text-sm text-slate-300">
               <p className="text-base font-medium text-slate-100">
                 {statusLabel}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-200 lg:justify-start">
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-200">
                 <span>Target language</span>
                 <select
                   className="rounded-full bg-transparent px-3 py-1 text-xs font-semibold text-slate-100 ring-1 ring-white/20 focus:outline-none"
@@ -461,7 +461,7 @@ export default function Home() {
             </div>
           </section>
 
-          <footer className="flex flex-col items-center gap-2 text-xs text-slate-400 lg:items-start">
+          <footer className="flex flex-col items-center gap-2 text-xs text-slate-400">
             <p>Tip: click once to start listening, click again to stop early.</p>
             <p>
               All audio stays in-session and is sent only to ElevenLabs for
