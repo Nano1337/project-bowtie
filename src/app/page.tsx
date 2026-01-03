@@ -68,13 +68,13 @@ export default function Home() {
   const statusLabel = useMemo(() => {
     switch (phase) {
       case "listening":
-        return "Listening… Speak into the bowtie.";
+        return "Listening…";
       case "processing":
-        return "Translating and dubbing… gears engaged.";
+        return "Translating…";
       case "speaking":
-        return "Bowtie speaking back.";
+        return "Speaking…";
       case "error":
-        return "Something went wrong. Try again.";
+        return "Try again.";
       default:
         return "Tap the bowtie to start.";
     }
@@ -305,7 +305,7 @@ export default function Home() {
       <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
         <nav className="absolute left-0 right-0 top-8 mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <span className="text-xs uppercase tracking-[0.4em] text-blue-700/80">
-            Detective Conan Voice Bowtie
+            Detective Conan
           </span>
           <div className="relative">
             <button
@@ -387,12 +387,10 @@ export default function Home() {
         <div className="flex w-full flex-col items-center gap-10">
           <header className="space-y-4">
             <h1 className="font-display text-4xl leading-tight text-blue-900 md:text-5xl">
-              A voice-changing bowtie that translates your speech out loud.
+              Speak. Translate. Hear it back.
             </h1>
-            <p className="mx-auto max-w-xl text-base leading-relaxed text-blue-800">
-              Click the bowtie, speak naturally, and hear a dubbed translation
-              with ElevenLabs. It&apos;s designed for fast pronunciation checks
-              and instant feedback.
+            <p className="mx-auto max-w-lg text-base leading-relaxed text-blue-800">
+              Tap the bowtie and hear your words dubbed into another language.
             </p>
           </header>
 
@@ -411,10 +409,12 @@ export default function Home() {
                 aria-pressed={phase === "listening"}
               >
                 <span className="sr-only">Activate bowtie microphone</span>
-                <div className="bowtie-wing left" />
-                <div className="bowtie-wing right" />
-                <div className="bowtie-gear left" />
-                <div className="bowtie-gear right" />
+                <img
+                  src="/images/bowtie.svg"
+                  alt=""
+                  className="bowtie-svg"
+                />
+                <div className="gear-ring" />
                 <div className="bowtie-core" />
               </button>
             </div>
@@ -463,11 +463,7 @@ export default function Home() {
           </section>
 
           <footer className="flex flex-col items-center gap-2 text-xs text-blue-700">
-            <p>Tip: click once to start listening, click again to stop early.</p>
-            <p>
-              All audio stays in-session and is sent only to ElevenLabs for
-              dubbing.
-            </p>
+            <p>Tap again to stop early.</p>
           </footer>
         </div>
       </main>
