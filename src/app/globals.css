@@ -16,8 +16,8 @@
 @theme inline {
   --color-background: var(--midnight);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-sans);
-  --font-display: var(--font-display);
+  --font-sans: var(--font-space-grotesk);
+  --font-display: var(--font-fraunces);
 }
 
 * {
@@ -28,11 +28,11 @@ body {
   min-height: 100vh;
   background: radial-gradient(circle at top, #1e1c3a 0%, #0c0a16 48%, #07060b 100%);
   color: var(--ink);
-  font-family: var(--font-sans), "Space Grotesk", system-ui, sans-serif;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
 }
 
 .font-display {
-  font-family: var(--font-display), "Fraunces", serif;
+  font-family: var(--font-fraunces), "Fraunces", serif;
 }
 
 .glow-orb {

@@ -3,12 +3,12 @@ import { Fraunces, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
-  variable: "--font-sans",
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
 const fraunces = Fraunces({
-  variable: "--font-display",
+  variable: "--font-fraunces",
   subsets: ["latin"],
 });
 
