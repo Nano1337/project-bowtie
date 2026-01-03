@@ -38,7 +38,7 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
       <div className="pointer-events-none absolute inset-0 comic-dots" />
       <div className="relative flex w-full max-w-3xl flex-col items-center gap-8 rounded-3xl border-2 border-blue-100 bg-white/90 px-8 py-12 text-center shadow-[0_30px_80px_rgba(47,93,255,0.25)]">
-        <h1 className="font-display text-4xl text-blue-900 md:text-5xl">
+        <h1 className="font-display text-4xl text-blue-900 md:text-6xl">
           One truth prevails. Do you have what it takes?
         </h1>
         <div className="relative flex items-center justify-center">
@@ -53,7 +53,7 @@ export default function LoginPage() {
           />
         </div>
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
-          <label className="block text-sm uppercase tracking-[0.25em] text-blue-700">
+          <label className="block text-base uppercase tracking-[0.22em] text-blue-700">
             Password
           </label>
           <input
@@ -64,11 +64,11 @@ export default function LoginPage() {
             placeholder="Shared password"
             required
           />
-          {error ? <p className="text-base text-red-500">{error}</p> : null}
+          {error ? <p className="text-lg text-red-500">{error}</p> : null}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full border-2 border-blue-200 bg-yellow-200 px-4 py-3 text-base font-semibold uppercase tracking-[0.25em] text-blue-900 transition hover:-translate-y-0.5 hover:bg-yellow-200/80 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full border-2 border-blue-200 bg-yellow-200 px-4 py-3 text-lg font-semibold uppercase tracking-[0.22em] text-blue-900 transition hover:-translate-y-0.5 hover:bg-yellow-200/80 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Checking…" : "Enter"}
           </button>
