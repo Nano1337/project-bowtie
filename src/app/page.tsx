@@ -33,7 +33,7 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState("ja");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [playbackRate, setPlaybackRate] = useState(0.9);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   const [showHistory, setShowHistory] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -41,6 +41,7 @@ export default function Home() {
   const autoStopTimerRef = useRef<number | null>(null);
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
   const inputMimeRef = useRef<string>("");
+  const playbackOptions = [0.75, 0.9, 1.0, 1.1, 1.25] as const;
 
   const convertToWav = async (blob: Blob) => {
     const arrayBuffer = await blob.arrayBuffer();
@@ -573,20 +574,26 @@ export default function Home() {
                   ))}
                 </select>
               </div>
-              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-blue-700">
+              <div className="flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-blue-700">
                 <span>Playback speed</span>
-                <select
-                  className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-900 ring-2 ring-blue-100 focus:outline-none"
-                  value={playbackRate}
-                  onChange={(event) =>
-                    setPlaybackRate(Number(event.target.value))
-                  }
-                >
-                  <option value={0.85}>0.85x</option>
-                  <option value={0.9}>0.9x</option>
-                  <option value={1}>1.0x</option>
-                  <option value={1.1}>1.1x</option>
-                </select>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max="4"
+                    step="1"
+                    value={playbackOptions.indexOf(playbackRate)}
+                    onChange={(event) => {
+                      const next =
+                        playbackOptions[Number(event.target.value)] ?? 1.0;
+                      setPlaybackRate(next);
+                    }}
+                    className="h-2 w-40 accent-yellow-300"
+                  />
+                  <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold text-blue-900">
+                    {playbackRate.toFixed(2)}x
+                  </span>
+                </div>
               </div>
               {errorMessage ? (
                 <p className="text-sm text-red-500">{errorMessage}</p>
