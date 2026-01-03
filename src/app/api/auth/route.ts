@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { createHash } from "crypto";
-
-const AUTH_COOKIE = "bowtie_auth";
 
 export async function POST(request: Request) {
   const expectedPassword = process.env.APP_PASSWORD;
@@ -27,14 +24,5 @@ export async function POST(request: Request) {
     );
   }
 
-  const hash = createHash("sha256").update(expectedPassword).digest("hex");
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set(AUTH_COOKIE, hash, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-  });
-
-  return response;
+  return NextResponse.json({ ok: true });
 }
