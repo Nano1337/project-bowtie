@@ -525,7 +525,7 @@ export default function Home() {
         <div className="flex w-full flex-col items-center gap-10">
           <header className="space-y-4">
             <h1 className="font-display text-4xl leading-tight text-blue-900 md:text-5xl">
-              There is always only one truth.
+              There is always only one truth!
             </h1>
             <p className="mx-auto max-w-lg text-base leading-relaxed text-blue-800">
               One truth prevails. Let it speak in a new language.
