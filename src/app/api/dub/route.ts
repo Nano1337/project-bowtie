@@ -127,8 +127,8 @@ export async function POST(request: Request) {
   if (status !== "dubbed") {
     log("Dubbing still processing after polling window.", { status });
     return Response.json(
-      { error: "Dubbing is still processing." },
-      { status: 504 }
+      { status, dubbing_id: dubbingId, message: "Dubbing is still processing." },
+      { status: 202 }
     );
   }
 

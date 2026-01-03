@@ -129,6 +129,20 @@ export default function Home() {
         body: formData,
       });
 
+      if (response.status === 202) {
+        const payload = await response.json().catch(() => null);
+        const dubbingId = payload?.dubbing_id as string | undefined;
+        log("Dubbing still processing, switching to status polling.", {
+          dubbingId,
+          status: payload?.status,
+        });
+        if (!dubbingId) {
+          throw new Error(payload?.error || "Dubbing failed.");
+        }
+        await pollDubbingStatus(dubbingId);
+        return;
+      }
+
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
         log("Dubbing request failed.", {
@@ -159,6 +173,55 @@ export default function Home() {
       );
       setPhase("error");
     }
+  };
+
+  const pollDubbingStatus = async (dubbingId: string) => {
+    const maxAttempts = 20;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      log("Polling dubbing status.", { attempt: attempt + 1, dubbingId });
+      const response = await fetch(
+        `/api/dub/status?dubbing_id=${encodeURIComponent(
+          dubbingId
+        )}&target_lang=${encodeURIComponent(targetLang)}`
+      );
+
+      if (response.status === 202) {
+        const payload = await response.json().catch(() => null);
+        log("Dubbing still processing.", {
+          attempt: attempt + 1,
+          status: payload?.status,
+        });
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        continue;
+      }
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        log("Status polling failed.", {
+          status: response.status,
+          error: payload?.error,
+        });
+        throw new Error(payload?.error || "Dubbing failed.");
+      }
+
+      const contentType = response.headers.get("content-type") || "audio/mpeg";
+      const buffer = await response.arrayBuffer();
+      const dubbedAudio = new Blob([buffer], { type: contentType });
+      const audioUrl = URL.createObjectURL(dubbedAudio);
+
+      const audio = new Audio(audioUrl);
+      setPhase("speaking");
+      log("Playing dubbed audio from status poll.");
+      audio.play();
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        setPhase("idle");
+        log("Playback finished.");
+      };
+      return;
+    }
+
+    throw new Error("Dubbing is still processing.");
   };
 
   const handleBowtieClick = () => {
