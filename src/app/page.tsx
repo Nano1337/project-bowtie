@@ -42,6 +42,66 @@ export default function Home() {
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
   const inputMimeRef = useRef<string>("");
 
+  const convertToWav = async (blob: Blob) => {
+    const arrayBuffer = await blob.arrayBuffer();
+    const AudioContextImpl =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    const audioContext = new AudioContextImpl();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    const wavBuffer = encodeWav(audioBuffer);
+    await audioContext.close();
+    return new Blob([wavBuffer], { type: "audio/wav" });
+  };
+
+  const encodeWav = (audioBuffer: AudioBuffer) => {
+    const numChannels = audioBuffer.numberOfChannels;
+    const sampleRate = audioBuffer.sampleRate;
+    const numFrames = audioBuffer.length;
+    const bytesPerSample = 2;
+    const blockAlign = numChannels * bytesPerSample;
+    const dataSize = numFrames * blockAlign;
+    const buffer = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(buffer);
+
+    const writeString = (offset: number, value: string) => {
+      for (let i = 0; i < value.length; i += 1) {
+        view.setUint8(offset + i, value.charCodeAt(i));
+      }
+    };
+
+    writeString(0, "RIFF");
+    view.setUint32(4, 36 + dataSize, true);
+    writeString(8, "WAVE");
+    writeString(12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bytesPerSample * 8, true);
+    writeString(36, "data");
+    view.setUint32(40, dataSize, true);
+
+    let offset = 44;
+    for (let i = 0; i < numFrames; i += 1) {
+      for (let channel = 0; channel < numChannels; channel += 1) {
+        const sample = audioBuffer.getChannelData(channel)[i] ?? 0;
+        const clamped = Math.max(-1, Math.min(1, sample));
+        view.setInt16(
+          offset,
+          clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff,
+          true
+        );
+        offset += 2;
+      }
+    }
+
+    return buffer;
+  };
+
   const revokeEntry = (entry: HistoryEntry) => {
     URL.revokeObjectURL(entry.inputUrl);
     if (entry.outputUrl) {
@@ -129,23 +189,34 @@ export default function Home() {
 
         const resolvedMime =
           recorder.mimeType || inputMimeRef.current || "audio/webm";
-        const audioBlob = new Blob(chunksRef.current, { type: resolvedMime });
+        const recordedBlob = new Blob(chunksRef.current, { type: resolvedMime });
         chunksRef.current = [];
-        if (audioBlob.size === 0) {
+        if (recordedBlob.size === 0) {
           setPhase("idle");
           return;
         }
+
+        let wavBlob: Blob;
+        try {
+          wavBlob = await convertToWav(recordedBlob);
+        } catch (err) {
+          console.error(err);
+          setErrorMessage("Audio conversion failed. Try again.");
+          setPhase("error");
+          return;
+        }
+
         const entryId = crypto.randomUUID();
-        const inputUrl = URL.createObjectURL(audioBlob);
+        const inputUrl = URL.createObjectURL(wavBlob);
         addHistoryEntry({
           id: entryId,
           createdAt: new Date().toISOString(),
           targetLang,
-          inputMime: audioBlob.type || inputMimeRef.current || "audio/webm",
+          inputMime: wavBlob.type,
           inputUrl,
           status: "processing",
         });
-        await requestDubbing(audioBlob, entryId);
+        await requestDubbing(wavBlob, entryId);
       };
 
       recorder.start();
@@ -187,7 +258,7 @@ export default function Home() {
       });
       updateHistoryEntry(entryId, { status: "processing", errorMessage: undefined });
       const formData = new FormData();
-      formData.append("audio", audioBlob, "bowtie.webm");
+      formData.append("audio", audioBlob, "bowtie.wav");
       formData.append("target_lang", targetLang);
 
       const response = await fetch("/api/dub", {
