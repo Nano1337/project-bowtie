@@ -543,7 +543,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleBowtieClick}
-                className="relative grid h-full w-full place-items-center rounded-full border-4 border-blue-200 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(191,226,255,0.3))] shadow-[0_24px_50px_rgba(47,93,255,0.25)] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-200"
+                className="relative grid h-full w-full place-items-center bg-transparent p-0 transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-200"
                 aria-pressed={phase === "listening"}
               >
                 <span className="sr-only">Activate bowtie microphone</span>
