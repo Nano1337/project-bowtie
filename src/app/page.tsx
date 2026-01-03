@@ -5,12 +5,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Phase = "idle" | "listening" | "processing" | "speaking" | "error";
 
 const LANGUAGES = [
+  { code: "en", label: "English (US)" },
   { code: "ja", label: "Japanese" },
   { code: "es", label: "Spanish" },
   { code: "zh", label: "Chinese" },
   { code: "pt", label: "Portuguese" },
   { code: "it", label: "Italian" },
   { code: "de", label: "German" },
+  { code: "ko", label: "Korean" },
   { code: "fr", label: "French" },
 ];
 
