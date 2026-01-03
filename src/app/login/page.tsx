@@ -47,10 +47,6 @@ export default function LoginPage() {
         <h1 className="font-display text-4xl text-blue-900 md:text-5xl">
           One truth prevails. Do you have what it takes?
         </h1>
-        <p className="max-w-xl text-base leading-relaxed text-blue-800">
-          Enter the shared passphrase to unlock the voice-changing bowtie and
-          test your pronunciation.
-        </p>
         <div className="relative flex items-center justify-center">
           <div className="absolute -inset-6 rounded-full bg-[radial-gradient(circle,_rgba(255,211,77,0.45),_rgba(255,211,77,0))] blur-2xl" />
           <Image
