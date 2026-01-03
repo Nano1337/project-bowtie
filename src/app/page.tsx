@@ -33,6 +33,7 @@ export default function Home() {
   const [targetLang, setTargetLang] = useState("ja");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [playbackRate, setPlaybackRate] = useState(0.9);
+  const [showHistory, setShowHistory] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -300,12 +301,90 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full glow-orb" />
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
-      <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-12 px-6 py-16 text-center lg:flex-row lg:items-start lg:text-left">
-        <div className="flex w-full flex-col items-center gap-10 lg:flex-1 lg:items-start">
+      <main className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center gap-12 px-6 py-16 text-center lg:text-left">
+        <nav className="relative flex w-full items-center justify-between">
+          <span className="text-xs uppercase tracking-[0.4em] text-emerald-200/70">
+            Bowtie Dubbing Lab
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowHistory((prev) => !prev)}
+              className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-100 transition hover:bg-white/10"
+              aria-expanded={showHistory}
+              aria-controls="history-panel"
+            >
+              History {history.length ? `(${history.length})` : ""}
+            </button>
+            <div
+              id="history-panel"
+              className={`absolute right-0 z-10 mt-3 w-[320px] rounded-2xl border border-white/10 bg-[rgba(12,14,24,0.95)] p-4 text-left shadow-[0_24px_60px_rgba(8,8,20,0.6)] transition ${
+                showHistory ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-2"
+              }`}
+            >
+              <div className="flex items-center justify-between text-xs text-slate-300">
+                <span className="uppercase tracking-[0.2em]">Session history</span>
+                <span className="text-slate-400">
+                  {history.length}/{MAX_HISTORY}
+                </span>
+              </div>
+              <div className="mt-4 space-y-3">
+                {history.length === 0 ? (
+                  <p className="text-sm text-slate-400">
+                    No recordings yet. Tap the bowtie to capture your first clip.
+                  </p>
+                ) : (
+                  history.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="rounded-xl border border-white/10 bg-white/5 p-3"
+                    >
+                      <div className="flex items-center justify-between text-[11px] text-slate-300">
+                        <span>
+                          {
+                            LANGUAGES.find(
+                              (language) => language.code === entry.targetLang
+                            )?.label
+                          }
+                        </span>
+                        <span>
+                          {new Date(entry.createdAt).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => playUrl(entry.inputUrl)}
+                          className="rounded-full border border-white/20 px-3 py-1 text-[11px] font-semibold text-slate-100 transition hover:bg-white/10"
+                        >
+                          Play input
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => playUrl(entry.outputUrl)}
+                          disabled={!entry.outputUrl}
+                          className="rounded-full border border-white/20 px-3 py-1 text-[11px] font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {entry.outputUrl ? "Play output" : "Output pending"}
+                        </button>
+                      </div>
+                      <div className="mt-2 text-[11px] text-slate-400">
+                        {entry.status === "processing"
+                          ? "Dubbing in progress…"
+                          : entry.status === "ready"
+                          ? "Dub ready."
+                          : entry.errorMessage || "Dubbing failed."}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex w-full flex-col items-center gap-10 lg:items-start">
           <header className="space-y-4">
-            <p className="text-sm uppercase tracking-[0.4em] text-emerald-200/70">
-              Bowtie Dubbing Lab
-            </p>
             <h1 className="font-display text-4xl leading-tight text-slate-100 md:text-5xl">
               A voice-changing bowtie that translates your speech out loud.
             </h1>
@@ -390,68 +469,6 @@ export default function Home() {
             </p>
           </footer>
         </div>
-
-        <aside className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-6 text-left shadow-[0_20px_50px_rgba(10,12,28,0.5)]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">
-              Session history
-            </h2>
-            <span className="text-xs text-slate-400">
-              {history.length}/{MAX_HISTORY}
-            </span>
-          </div>
-          <div className="mt-5 space-y-4">
-            {history.length === 0 ? (
-              <p className="text-sm text-slate-400">
-                No recordings yet. Tap the bowtie to capture your first clip.
-              </p>
-            ) : (
-              history.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                >
-                  <div className="flex items-center justify-between text-xs text-slate-300">
-                    <span>
-                      {
-                        LANGUAGES.find(
-                          (language) => language.code === entry.targetLang
-                        )?.label
-                      }
-                    </span>
-                    <span>
-                      {new Date(entry.createdAt).toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => playUrl(entry.inputUrl)}
-                      className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
-                    >
-                      Play input
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => playUrl(entry.outputUrl)}
-                      disabled={!entry.outputUrl}
-                      className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {entry.outputUrl ? "Play output" : "Output pending"}
-                    </button>
-                  </div>
-                  <div className="mt-2 text-xs text-slate-400">
-                    {entry.status === "processing"
-                      ? "Dubbing in progress…"
-                      : entry.status === "ready"
-                      ? "Dub ready."
-                      : entry.errorMessage || "Dubbing failed."}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </aside>
       </main>
     </div>
   );
