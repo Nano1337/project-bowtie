@@ -211,11 +211,19 @@ export default function Home() {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
+        const errorMessage =
+          typeof payload?.error === "string"
+            ? payload.error
+            : typeof payload?.detail === "string"
+            ? payload.detail
+            : payload
+            ? JSON.stringify(payload)
+            : "Dubbing failed.";
         log("Dubbing request failed.", {
           status: response.status,
-          error: payload?.error,
+          error: payload?.error ?? payload?.detail ?? payload,
         });
-        throw new Error(payload?.error || "Dubbing failed.");
+        throw new Error(errorMessage);
       }
 
       const contentType = response.headers.get("content-type") || "audio/mpeg";
@@ -268,11 +276,19 @@ export default function Home() {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
+        const errorMessage =
+          typeof payload?.error === "string"
+            ? payload.error
+            : typeof payload?.detail === "string"
+            ? payload.detail
+            : payload
+            ? JSON.stringify(payload)
+            : "Dubbing failed.";
         log("Status polling failed.", {
           status: response.status,
-          error: payload?.error,
+          error: payload?.error ?? payload?.detail ?? payload,
         });
-        throw new Error(payload?.error || "Dubbing failed.");
+        throw new Error(errorMessage);
       }
 
       const contentType = response.headers.get("content-type") || "audio/mpeg";
