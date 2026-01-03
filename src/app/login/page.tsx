@@ -79,7 +79,7 @@ export default function LoginPage() {
         <div className="relative flex items-center justify-center">
           <div className="absolute -inset-6 rounded-full bg-[radial-gradient(circle,_rgba(102,242,255,0.35),_rgba(102,242,255,0))] blur-2xl" />
           <Image
-            src="/images/conan.webp"
+            src="/images/conan.png"
             alt="Detective Conan pointing forward"
             width={360}
             height={360}
