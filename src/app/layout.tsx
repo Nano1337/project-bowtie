@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Baloo_2, Fredoka } from "next/font/google";
+import { Luckiest_Guy, Nunito } from "next/font/google";
 import "./globals.css";
 
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
 });
 
-const baloo = Baloo_2({
-  variable: "--font-baloo",
+const luckiest = Luckiest_Guy({
+  variable: "--font-luckiest",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${fredoka.variable} ${baloo.variable} antialiased`}>
+      <body className={`${nunito.variable} ${luckiest.variable} antialiased`}>
         {children}
       </body>
     </html>

@@ -18,8 +18,8 @@
 @theme inline {
   --color-background: var(--sky-top);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-fredoka);
-  --font-display: var(--font-baloo);
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-luckiest);
 }
 
 * {
@@ -30,11 +30,12 @@ body {
   min-height: 100vh;
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 48%, var(--sky-bottom) 100%);
   color: var(--ink);
-  font-family: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
+  font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
 }
 
 .font-display {
-  font-family: var(--font-baloo), "Baloo 2", system-ui, sans-serif;
+  font-family: var(--font-luckiest), "Luckiest Guy", system-ui, sans-serif;
+  letter-spacing: 0.02em;
 }
 
 .glow-orb {
