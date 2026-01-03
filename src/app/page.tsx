@@ -528,7 +528,7 @@ export default function Home() {
               There is always only one truth.
             </h1>
             <p className="mx-auto max-w-lg text-base leading-relaxed text-blue-800">
-              Tap the bowtie. Let the truth speak in a new language.
+              One truth prevails. Let it speak in a new language.
             </p>
           </header>
 
