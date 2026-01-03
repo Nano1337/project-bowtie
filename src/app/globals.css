@@ -76,8 +76,7 @@ body {
   z-index: 1;
 }
 
-.bowtie-listening .bowtie-image,
-.bowtie-processing .bowtie-image {
+.bowtie-listening .bowtie-image {
   animation: bowtie-pulse 1.2s ease-in-out infinite;
 }
 
