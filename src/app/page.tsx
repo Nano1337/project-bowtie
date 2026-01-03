@@ -41,6 +41,7 @@ export default function Home() {
   const autoStopTimerRef = useRef<number | null>(null);
   const log = (...args: unknown[]) => console.info("[bowtie]", ...args);
   const inputMimeRef = useRef<string>("");
+  const historyRef = useRef<HistoryEntry[]>([]);
   const playbackOptions = [0.75, 0.9, 1.0, 1.1, 1.25] as const;
 
   const convertToWav = async (blob: Blob) => {
@@ -144,6 +145,10 @@ export default function Home() {
   }, [phase]);
 
   useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
+
+  useEffect(() => {
     return () => {
       if (autoStopTimerRef.current) {
         window.clearTimeout(autoStopTimerRef.current);
@@ -152,9 +157,9 @@ export default function Home() {
         recorderRef.current?.stop();
       }
       streamRef.current?.getTracks().forEach((track) => track.stop());
-      history.forEach(revokeEntry);
+      historyRef.current.forEach(revokeEntry);
     };
-  }, [history]);
+  }, []);
 
   const startRecording = async () => {
     setErrorMessage(null);
