@@ -305,7 +305,7 @@ export default function Home() {
       <main className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
         <nav className="absolute left-0 right-0 top-8 mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <span className="text-xs uppercase tracking-[0.4em] text-blue-700/80">
-            Bowtie Dubbing Lab
+            Detective Conan Voice Bowtie
           </span>
           <div className="relative">
             <button

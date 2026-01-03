@@ -13,7 +13,7 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "Bowtie Dubbing Lab",
+  title: "Detective Conan Voice Bowtie",
   description:
     "A Detective Conan-inspired bowtie that captures speech and plays back a dubbed translation.",
 };

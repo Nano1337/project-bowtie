@@ -44,9 +44,6 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute bottom-10 right-0 h-96 w-96 rounded-full glow-orb" />
       <div className="pointer-events-none absolute inset-0 comic-dots" />
       <div className="relative flex w-full max-w-3xl flex-col items-center gap-8 rounded-3xl border-2 border-blue-100 bg-white/90 px-8 py-12 text-center shadow-[0_30px_80px_rgba(47,93,255,0.25)]">
-        <p className="text-xs uppercase tracking-[0.4em] text-blue-700/80">
-          Bowtie Dubbing Lab
-        </p>
         <h1 className="font-display text-4xl text-blue-900 md:text-5xl">
           One truth prevails. Do you have what it takes?
         </h1>
