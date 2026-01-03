@@ -163,7 +163,11 @@ export async function POST(request: Request) {
 
   log("Audio fetch exhausted retries.");
   return Response.json(
-    { error: "Dubbing audio not ready yet." },
-    { status: 504 }
+    {
+      status: "audio_pending",
+      dubbing_id: dubbingId,
+      message: "Dubbing audio not ready yet.",
+    },
+    { status: 202 }
   );
 }
