@@ -23,7 +23,7 @@ const isPublicPath = (pathname: string) => {
   );
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const expectedPassword = process.env.APP_PASSWORD;
   if (!expectedPassword) {
     return new NextResponse("Server is missing APP_PASSWORD.", { status: 500 });
@@ -53,5 +53,4 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image).*)"],
-  runtime: "nodejs",
 };

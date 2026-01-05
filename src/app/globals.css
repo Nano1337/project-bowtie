@@ -1,18 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #19305c;
+  /* Refined Conan-inspired palette */
+  --ink: #1a3a6e;
   --ink-muted: #4a6aa6;
-  --sky-top: #dff3ff;
-  --sky-mid: #bfe2ff;
-  --sky-bottom: #8cc7ff;
+  --sky-top: #e8f4ff;
+  --sky-mid: #c5e4ff;
+  --sky-bottom: #94c9ff;
   --accent-blue: #2f5dff;
-  --accent-red: #ff3b5c;
-  --accent-yellow: #ffd34d;
+  --accent-red: #e63946;
+  --accent-yellow: #f4d35e;
   --accent-green: #3ccf91;
-  --panel: rgba(255, 255, 255, 0.9);
+  --conan-blue: #1a3a6e;
+  --bowtie-red: #e63946;
+  --gold: #f4d35e;
+  --panel: rgba(255, 255, 255, 0.92);
   --panel-strong: rgba(255, 255, 255, 0.98);
-  --outline: rgba(25, 48, 92, 0.2);
+  --outline: rgba(26, 58, 110, 0.15);
 }
 
 @theme inline {
@@ -61,7 +65,8 @@ body {
   width: 100%;
   height: auto;
   z-index: 2;
-  filter: drop-shadow(0 18px 35px rgba(255, 59, 92, 0.25));
+  filter: drop-shadow(0 18px 35px rgba(230, 57, 70, 0.3));
+  animation: bowtie-float 4s ease-in-out infinite;
 }
 
 .bowtie-listening .bowtie-image {
@@ -76,16 +81,30 @@ body {
   animation: speak-throb 1.1s ease-in-out infinite;
 }
 
+.bowtie-transcribing .bowtie-image {
+  animation: transcribing-glow 1s ease-in-out infinite;
+}
+
+@keyframes bowtie-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
 @keyframes bowtie-pulse {
   0%,
   100% {
-    filter: drop-shadow(0 18px 35px rgba(255, 59, 92, 0.25))
-      drop-shadow(0 0 26px rgba(255, 211, 77, 0.5));
+    filter: drop-shadow(0 18px 35px rgba(230, 57, 70, 0.3))
+      drop-shadow(0 0 26px rgba(244, 211, 94, 0.5));
     transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 26px 55px rgba(255, 59, 92, 0.55))
-      drop-shadow(0 0 52px rgba(255, 211, 77, 0.9));
+    filter: drop-shadow(0 26px 55px rgba(230, 57, 70, 0.5))
+      drop-shadow(0 0 52px rgba(244, 211, 94, 0.9));
     transform: scale(1.05);
   }
 }
@@ -93,12 +112,12 @@ body {
 @keyframes processing-glow {
   0%,
   100% {
-    filter: drop-shadow(0 18px 35px rgba(255, 111, 92, 0.35))
-      drop-shadow(0 0 26px rgba(255, 211, 77, 0.55));
+    filter: drop-shadow(0 18px 35px rgba(230, 57, 70, 0.35))
+      drop-shadow(0 0 26px rgba(244, 211, 94, 0.55));
   }
   50% {
     filter: drop-shadow(0 26px 50px rgba(47, 93, 255, 0.55))
-      drop-shadow(0 0 42px rgba(140, 199, 255, 0.85));
+      drop-shadow(0 0 42px rgba(148, 201, 255, 0.85));
   }
 }
 
@@ -112,9 +131,112 @@ body {
   }
 }
 
+@keyframes transcribing-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 18px 35px rgba(255, 59, 92, 0.25))
+      drop-shadow(0 0 20px rgba(60, 207, 145, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 22px 45px rgba(255, 59, 92, 0.35))
+      drop-shadow(0 0 35px rgba(60, 207, 145, 0.7));
+  }
+}
+
+/* Transcript styles */
+.transcript-container {
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(47, 93, 255, 0.3) transparent;
+}
+
+@media (min-height: 700px) {
+  .transcript-container {
+    max-height: 60vh;
+  }
+}
+
+.transcript-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcript-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transcript-container::-webkit-scrollbar-thumb {
+  background: rgba(47, 93, 255, 0.3);
+  border-radius: 3px;
+}
+
+.transcript-word {
+  display: inline;
+  white-space: pre-wrap;
+}
+
+/* Audio waveform styles */
+.audio-waveform {
+  pointer-events: none;
+  z-index: 10;
+}
+
+.waveform-bar {
+  min-height: 4px;
+  max-height: 40px;
+  box-shadow: 0 0 8px rgba(47, 93, 255, 0.4);
+}
+
+/* Progress ring styles */
+.progress-ring {
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(0 0 6px rgba(244, 211, 94, 0.5));
+}
+
+/* Celebration sparkles */
+.celebration-container {
+  z-index: 20;
+}
+
+.sparkle {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: sparkle-burst 1.5s ease-out forwards;
+  box-shadow: 0 0 8px var(--gold), 0 0 16px var(--gold);
+}
+
+.sparkle:nth-child(odd) {
+  background: var(--accent-red);
+  box-shadow: 0 0 8px var(--accent-red), 0 0 16px var(--accent-red);
+}
+
+.sparkle:nth-child(3n) {
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px var(--accent-blue), 0 0 16px var(--accent-blue);
+}
+
+@keyframes sparkle-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) translateY(-30px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bowtie-listening .bowtie-image,
   .bowtie-processing .bowtie-image,
+  .bowtie-transcribing .bowtie-image,
   .bowtie-speaking .bowtie-image {
     animation: none !important;
   }
