@@ -21,12 +21,12 @@ type HistoryEntry = {
   transcript?: TranscriptWord[];
 };
 
-// ElevenLabs uses ISO 639-3 codes for some languages
+// ElevenLabs dubbing API accepts ISO 639-1 codes
 const LANGUAGES = [
   { code: "en", label: "English", enabled: true },
   { code: "ja", label: "Japanese", enabled: true },
   { code: "es", label: "Spanish", enabled: true },
-  { code: "cmn", label: "Chinese (Mandarin)", enabled: true },
+  { code: "zh", label: "Chinese", enabled: true },
   { code: "pt", label: "Portuguese", enabled: true },
   { code: "it", label: "Italian", enabled: true },
   { code: "de", label: "German", enabled: true },
